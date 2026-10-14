@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>โรงอาหารคิวไว | สั่งอาหารออนไลน์</title>
+<style>
+:root{--green:#247a55;--green2:#e7f5ed;--ink:#20312a;--muted:#6d7c74;--cream:#fbfaf5;--orange:#f3a64a;--line:#e4e9e4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#1f704d,#3b9b70);color:white;padding:24px 18px 30px}
+.wrap{max-width:1000px;margin:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.logo{font-size:1.3rem;font-weight:800}.badge{background:#ffffff25;border:1px solid #ffffff55;border-radius:999px;padding:7px 11px;font-size:.85rem}
+header h1{font-size:clamp(1.65rem,5vw,2.5rem);line-height:1.2;margin:26px 0 8px}
+header p{margin:0;color:#e9fff1;max-width:650px;line-height:1.6}
+main{max-width:1000px;margin:22px auto;padding:0 16px 40px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(270px,1fr);gap:20px}
+section,.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 6px 22px #233b2c0a}
+h2{font-size:1.15rem;margin:0 0 14px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.filter{border:1px solid var(--line);background:white;padding:8px 12px;border-radius:999px;cursor:pointer;color:var(--ink)}
+.filter.active{background:var(--green);color:white;border-color:var(--green)}
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.food{border:1px solid var(--line);border-radius:15px;overflow:hidden;display:flex;flex-direction:column}
+.food .emoji{font-size:2.8rem;background:#f0f7f1;display:grid;place-items:center;min-height:100px}
+.food .info{padding:12px;display:flex;flex-direction:column;flex:1}
+.food h3{font-size:1rem;margin:0 0 5px}.desc{font-size:.82rem;color:var(--muted);line-height:1.45;min-height:36px}
+.price-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.price{font-weight:800;color:var(--green)}
+button{font:inherit}
+.add{border:0;background:var(--green);color:white;border-radius:10px;padding:8px 11px;cursor:pointer;font-weight:700}
+.add:hover,.primary:hover{filter:brightness(.94)}
+.side{display:flex;flex-direction:column;gap:16px;align-self:start}
+.cart-empty{color:var(--muted);font-size:.92rem;padding:10px 0}
+.cart-item{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.qty{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.qty button{border:1px solid var(--line);background:white;border-radius:7px;width:27px;height:27px;cursor:pointer}
+.total{display:flex;justify-content:space-between;font-weight:800;padding:14px 0 4px}
+.field{width:100%;border:1px solid #d5ded7;border-radius:10px;padding:11px;margin-top:7px;font:inherit;background:#fff}
+.primary{width:100%;background:var(--orange);border:0;border-radius:12px;padding:12px;font-weight:800;cursor:pointer;margin-top:12px;color:#36240d}
+.small{font-size:.78rem;color:var(--muted);line-height:1.5}
+.queue-card{background:var(--green2);border:1px solid #c9e7d5;border-radius:15px;padding:16px}
+.queue-no{font-size:2rem;font-weight:900;color:var(--green);margin:4px 0}
+.status{display:inline-block;border-radius:999px;background:#fff0d9;color:#895316;padding:5px 9px;font-size:.8rem;font-weight:700}
+.hidden{display:none!important}
+footer{text-align:center;padding:22px;color:var(--muted);font-size:.82rem}
+@media(max-width:720px){main{grid-template-columns:1fr}.menu{grid-template-columns:repeat(2,minmax(0,1fr))}.top{align-items:flex-start;flex-direction:column}}
+@media(max-width:390px){.menu{grid-template-columns:1fr}.food .emoji{min-height:85px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top"><div class="logo">🍽️ โรงอาหารคิวไว</div><div class="badge">DEMO • ตัวอย่างระบบสั่งอาหาร</div></div>
+    <h1>สั่งง่าย ไม่ต้องรอนาน</h1>
+    <p>เลือกเมนูที่ชอบ สั่งผ่านมือถือ แล้วรับหมายเลขคิวเพื่อไปรับอาหารที่ร้าน</p>
+  </div>
+</header>
+<main>
+  <section>
+    <h2>🍛 เมนูอาหาร</h2>
+    <div class="filters">
+      <button class="filter active" data-cat="ทั้งหมด">ทั้งหมด</button>
+      <button class="filter" data-cat="อาหารจานเดียว">อาหารจานเดียว</button>
+      <button class="filter" data-cat="ก๋วยเตี๋ยว">ก๋วยเตี๋ยว</button>
+      <button class="filter" data-cat="เครื่องดื่ม">เครื่องดื่ม</button>
+    </div>
+    <div class="menu" id="menu"></div>
+  </section>
+  <div class="side">
+    <section>
+      <h2>🛒 รายการที่เลือก</h2>
+      <div id="cart"><div class="cart-empty">ยังไม่ได้เลือกเมนูอาหาร</div></div>
+      <div class="total"><span>รวมทั้งหมด</span><span id="total">฿0</span></div>
+      <label for="customer">ชื่อผู้สั่ง (ไม่บังคับ)</label>
+      <input id="customer" class="field" placeholder="เช่น มิน">
+      <label for="pickup">เวลารับอาหาร</label>
+      <select id="pickup" class="field"><option>รับเร็วที่สุด</option><option>อีก 15 นาที</option><option>อีก 30 นาที</option></select>
+      <button class="primary" id="orderBtn">ยืนยันสั่งอาหาร</button>
+      <p class="small">ตัวอย่างสำหรับสาธิตในชั้นเรียนเท่านั้น ไม่มีการชำระเงินจริงหรือส่งคำสั่งซื้อให้ร้านค้า</p>
+    </section>
+    <section id="queueSection" class="hidden">
+      <h2>🎫 หมายเลขคิวของคุณ</h2>
+      <div class="queue-card">
+        <div class="small">หมายเลขคิว</div>
+        <div class="queue-no" id="queueNo">A001</div>
+        <div class="status" id="queueStatus">รับคำสั่งซื้อแล้ว</div>
+        <p id="queueMessage">โปรดรอเรียกคิวที่ร้านอาหาร</p>
+      </div>
+      <h3 style="font-size:1rem;margin-bottom:8px">สรุปรายการ</h3>
+      <div id="receipt"></div>
+      <button class="add" id="newOrder" style="width:100%;margin-top:12px">สั่งรายการใหม่</button>
+    </section>
+    <section>
+      <h2>ℹ️ วิธีใช้งาน</h2>
+      <p class="small">1. เลือกอาหารโดยกด “เพิ่ม”<br>2. ปรับจำนวนในรายการที่เลือก<br>3. กดยืนยันสั่งอาหาร<br>4. เก็บหมายเลขคิวไว้ แล้วไปรับอาหารที่ร้าน</p>
+    </section>
+  </div>
+</main>
+<footer>โรงอาหารคิวไว • ต้นแบบสำหรับโครงงานนักศึกษา</footer>
+<script>
+const foods=[
+ {id:1,name:"ข้าวกะเพราไก่",desc:"ข้าวสวยร้อน ๆ ผัดกะเพรา",price:45,emoji:"🍛",cat:"อาหารจานเดียว"},
+ {id:2,name:"ข้าวไข่เจียว",desc:"ไข่เจียวกรอบ เสิร์ฟพร้อมข้าว",price:35,emoji:"🍳",cat:"อาหารจานเดียว"},
+ {id:3,name:"ข้าวไก่ทอด",desc:"ไก่ทอดกรอบพร้อมข้าว",price:50,emoji:"🍗",cat:"อาหารจานเดียว"},
+ {id:4,name:"ผัดไทย",desc:"ผัดไทยรสกลมกล่อม",price:50,emoji:"🍜",cat:"ก๋วยเตี๋ยว"},
+ {id:5,name:"ก๋วยเตี๋ยวน้ำใส",desc:"เลือกเส้นได้ที่ร้าน",price:45,emoji:"🍲",cat:"ก๋วยเตี๋ยว"},
+ {id:6,name:"ชาเย็น",desc:"ชาเย็น หวานมัน",price:25,emoji:"🧋",cat:"เครื่องดื่ม"},
+ {id:7,name:"น้ำเปล่า",desc:"น้ำดื่มเย็น ๆ",price:10,emoji:"💧",cat:"เครื่องดื่ม"},
+ {id:8,name:"ข้าวผัด",desc:"ข้าวผัดใส่ไข่และผัก",price:45,emoji:"🍚",cat:"อาหารจานเดียว"}
+];
+let cart={};let currentCat="ทั้งหมด";let orderCount=Number(localStorage.getItem("queueDemoCount")||0);
+const money=n=>"฿"+n.toLocaleString("th-TH");
+function renderMenu(){
+ const list=foods.filter(f=>currentCat==="ทั้งหมด"||f.cat===currentCat);
+ document.getElementById("menu").innerHTML=list.map(f=>`<article class="food"><div class="emoji">${f.emoji}</div><div class="info"><h3>${f.name}</h3><div class="desc">${f.desc}</div><div class="price-row"><span class="price">${money(f.price)}</span><button class="add" onclick="addItem(${f.id})">+ เพิ่ม</button></div></div></article>`).join("");
+}
+function addItem(id){cart[id]=(cart[id]||0)+1;renderCart()}
+function changeQty(id,delta){cart[id]=(cart[id]||0)+delta;if(cart[id]<=0)delete cart[id];renderCart()}
+function renderCart(){
+ const entries=Object.entries(cart);
+ document.getElementById("cart").innerHTML=entries.length?entries.map(([id,q])=>{const f=foods.find(x=>x.id===Number(id));return `<div class="cart-item"><div><strong>${f.name}</strong><br><span class="small">${money(f.price)} × ${q}</span></div><div class="qty"><button onclick="changeQty(${id},-1)">−</button><span>${q}</span><button onclick="changeQty(${id},1)">+</button></div></div>`}).join(""):'<div class="cart-empty">ยังไม่ได้เลือกเมนูอาหาร</div>';
+ document.getElementById("total").textContent=money(entries.reduce((s,[id,q])=>s+foods.find(f=>f.id===Number(id)).price*q,0));
+}
+document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentCat=b.dataset.cat;renderMenu()}));
+document.getElementById("orderBtn").addEventListener("click",()=>{
+ const entries=Object.entries(cart);if(!entries.length){alert("กรุณาเลือกอาหารอย่างน้อย 1 รายการก่อนยืนยัน");return}
+ orderCount++;localStorage.setItem("queueDemoCount",orderCount);
+ const queue="A"+String(orderCount).padStart(3,"0");
+ const customer=document.getElementById("customer").value.trim()||"ลูกค้า";
+ const pickup=document.getElementById("pickup").value;
+ const total=entries.reduce((s,[id,q])=>s+foods.find(f=>f.id===Number(id)).price*q,0);
+ document.getElementById("queueNo").textContent=queue;
+ document.getElementById("queueMessage").textContent=`คุณ ${customer} • ${pickup} กรุณารอเรียกคิวที่ร้าน`;
+ document.getElementById("queueStatus").textContent="รับคำสั่งซื้อแล้ว";
+ document.getElementById("receipt").innerHTML=entries.map(([id,q])=>{const f=foods.find(x=>x.id===Number(id));return `<div class="cart-item"><span>${f.name} × ${q}</span><strong>${money(f.price*q)}</strong></div>`}).join("")+`<div class="total"><span>ยอดรวม</span><span>${money(total)}</span></div>`;
+ document.getElementById("queueSection").classList.remove("hidden");
+ document.getElementById("queueSection").scrollIntoView({behavior:"smooth",block:"start"});
+ cart={};renderCart();
+});
+document.getElementById("newOrder").addEventListener("click",()=>{document.getElementById("queueSection").classList.add("hidden");document.getElementById("customer").value="";window.scrollTo({top:0,behavior:"smooth"})});
+renderMenu();renderCart();
+</script>
+</body>
+</html>
